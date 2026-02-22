@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Jonathan Pham | Portfolio</title>
+    <title>Jonathan Pham | Website</title>
     <meta name="description" content="Portfolio website for Jonathan Pham." />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="./index.css" />
@@ -23,16 +23,27 @@
       </nav>
 
       <section class="hero">
-        <p class="eyebrow">Software • Data • AI</p>
-        <h1>Hi, I’m <span class="accent">Jonathan</span>.</h1>
-        <p class="subhead">
-          I build practical tools and data-driven solutions—clean code, clear thinking, measurable impact.
-        </p>
-        <div class="hero__cta">
-          <a class="btn" href="#projects">See projects</a>
-          <a class="btn btn--ghost" href="#contact">Contact</a>
+        <div class="hero_container">
+      
+          <div class="hero_text">
+            <p class="eyebrow">Software • Data • AI</p>
+            <h1>Hi, I’m <span class="accent">Jonathan</span>.</h1>
+            <p class="subhead">
+              I build practical tools and data-driven solutions—clean code, clear thinking, measurable impact.
+            </p>
+      
+            <div class="hero__cta">
+              <a class="btn" href="#projects">See projects</a>
+              <a class="btn btn--ghost" href="#contact">Contact</a>
+            </div>
+          </div>
+      
+          <div class="hero_image">
+            <img src="JobCareerFair2025-34 (1).jpg" alt="Jonathan Pham headshot">
+          </div>
+      
         </div>
-
+      
         <div class="hero__stats" aria-label="Highlights">
           <div class="card">
             <p class="card__kpi">10k+</p>
@@ -53,7 +64,7 @@
     <main class="main">
       <section class="section" id="work">
         <div class="section__head">
-          <h2>Experience</h2>
+          <h2><span class="accent">Experience</span></h2>
           <p>What I’ve worked on recently.</p>
         </div>
 
@@ -86,7 +97,7 @@
 
       <section class="section" id="projects">
         <div class="section__head">
-          <h2>Projects</h2>
+          <h2><span class="accent">Projects</span></h2>
           <p>Things I’ve built. Swap these with your real projects.</p>
         </div>
 
@@ -142,7 +153,7 @@
 
       <section class="section" id="skills">
         <div class="section__head">
-          <h2>Skills</h2>
+          <h2><span class="accent">Skills</span></h2>
           <p>Tools I’m comfortable with (and always learning more).</p>
         </div>
 
@@ -162,7 +173,7 @@
 
       <section class="section" id="contact">
         <div class="section__head">
-          <h2>Contact</h2>
+          <h2><span class="accent">Contact</span></h2>
           <p>Want to chat? Send a message.</p>
         </div>
 
@@ -177,24 +188,31 @@
             </ul>
           </div>
 
-          <form class="panel form" id="contactForm">
-            <label>
-              Name
-              <input name="name" placeholder="Your name" required />
-            </label>
-            <label>
-              Email
-              <input type="email" name="email" placeholder="you@example.com" required />
-            </label>
-            <label>
-              Message
-              <textarea name="message" rows="5" placeholder="What do you want to build?" required></textarea>
-            </label>
-            <button class="btn" type="submit">Send</button>
-            <p class="muted small" id="formNote">
-              This demo doesn’t send emails yet. I can wire it to Formspree, Netlify Forms, or your backend.
-            </p>
-          </form>
+          <form 
+            class="panel form" 
+            action="https://formspree.io/f/xjgepvyz" 
+            method="POST"
+          >
+          <input type="hidden" name="_subject" value="New message from your portfolio site">
+          <input type="hidden" name="_captcha" value="false">
+
+          <label>
+           Name
+          <input name="name" placeholder="Your name" required>
+        </label>
+
+        <label>
+          Email
+        <input type="email" name="email" placeholder="you@example.com" required>
+        </label>
+
+        <label>
+        Message
+        <textarea name="message" required></textarea>
+        </label>
+
+        <button class="btn" type="submit">Send</button>
+        </form>
         </div>
       </section>
     </main>
