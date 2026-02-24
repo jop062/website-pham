@@ -532,6 +532,16 @@ body.dark{
     justify-content: space-between;
     gap: 10px;
   }
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.modal button {
+  align-self: flex-start;
+}
   
   .icon-btn{
     border: 1px solid var(--line);
