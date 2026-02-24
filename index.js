@@ -20,43 +20,69 @@ window.addEventListener("DOMContentLoaded", () => {
     SUPABASE_ANON_KEY
   );
 
-  console.log("Supabase client ready:", supabase);
+  console.log("Supabase ready");
 
 
   // =============================
-  // ===== Resume Modal ==========
+  // ===== Safe Element Grab =====
   // =============================
 
-  const resumeBtn = document.getElementById("resumeBtn");
-  const resumeModal = document.getElementById("resumeModal");
-  const resumeClose = document.getElementById("resumeClose");
-  const resumeForm = document.getElementById("resumeForm");
-  const otpSection = document.getElementById("otpSection");
-  const otpStatus = document.getElementById("otpStatus");
-  const verifyCodeBtn = document.getElementById("verifyCodeBtn");
+  const get = (id) => document.getElementById(id);
+
+  const resumeBtn = get("resumeBtn");
+  const resumeModal = get("resumeModal");
+  const resumeClose = get("resumeClose");
+  const resumeForm = get("resumeForm");
+  const otpSection = get("otpSection");
+  const otpStatus = get("otpStatus");
+  const verifyCodeBtn = get("verifyCodeBtn");
+  const yearEl = get("year");
+  const themePill = get("themePill");
+  const sidebarToggle = get("sidebarToggle");
+  const sidebarNav = get("sidebarNav");
 
   const RESUME_BUCKET = "resumes";
-  const RESUME_PATH = "Resume-JonathanPham.pdf";
+  const RESUME_PATH = "Resume-JonathanPham.docx (4).pdf";
   const SIGNED_URL_TTL_SECONDS = 60;
 
   let lastEmail = "";
 
+
+  // =============================
+  // ===== Year ==================
+  // =============================
+
+  if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+  }
+
+
+  // =============================
+  // ===== Modal Logic ===========
+  // =============================
+
   function openModal() {
+    if (!resumeModal) return;
     resumeModal.style.display = "flex";
   }
 
   function closeModal() {
+    if (!resumeModal) return;
     resumeModal.style.display = "none";
-    resumeForm.reset();
-    otpSection.style.display = "none";
-    otpStatus.textContent = "";
+
+    if (resumeForm) resumeForm.reset();
+    if (otpSection) otpSection.style.display = "none";
+    if (otpStatus) otpStatus.textContent = "";
   }
 
-  resumeBtn?.addEventListener("click", openModal);
-  resumeClose?.addEventListener("click", closeModal);
-  resumeModal?.addEventListener("click", (e) => {
-    if (e.target === resumeModal) closeModal();
-  });
+  if (resumeBtn) resumeBtn.addEventListener("click", openModal);
+  if (resumeClose) resumeClose.addEventListener("click", closeModal);
+
+  if (resumeModal) {
+    resumeModal.addEventListener("click", (e) => {
+      if (e.target === resumeModal) closeModal();
+    });
+  }
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeModal();
@@ -67,81 +93,87 @@ window.addEventListener("DOMContentLoaded", () => {
   // ===== Send OTP ==============
   // =============================
 
-  resumeForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  if (resumeForm) {
+    resumeForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const email = resumeForm.email.value.trim();
-    if (!email) return;
+      const email = resumeForm.email?.value?.trim();
+      if (!email) return;
 
-    otpStatus.textContent = "Sending code...";
-    lastEmail = email;
+      if (otpStatus) otpStatus.textContent = "Sending code...";
+      lastEmail = email;
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email
+      try {
+        const { error } = await supabase.auth.signInWithOtp({ email });
+
+        if (error) {
+          if (otpStatus) otpStatus.textContent = error.message;
+          return;
+        }
+
+        if (otpStatus) otpStatus.textContent = "Code sent. Check your email.";
+        if (otpSection) otpSection.style.display = "block";
+
+      } catch (err) {
+        if (otpStatus) otpStatus.textContent = "Failed to send code.";
+        console.error(err);
+      }
     });
-
-    if (error) {
-      otpStatus.textContent = error.message;
-      return;
-    }
-
-    otpStatus.textContent = "Code sent. Check your email.";
-    otpSection.style.display = "block";
-  });
+  }
 
 
   // =============================
   // ===== Verify OTP ============
   // =============================
 
-  verifyCodeBtn?.addEventListener("click", async () => {
+  if (verifyCodeBtn) {
+    verifyCodeBtn.addEventListener("click", async () => {
 
-    const otp = (resumeForm.otp.value || "").trim();
-    if (!lastEmail || otp.length !== 6) {
-      otpStatus.textContent = "Enter the 6-digit code.";
-      return;
-    }
+      const otp = resumeForm?.otp?.value?.trim();
+      if (!lastEmail || !otp || otp.length !== 6) {
+        if (otpStatus) otpStatus.textContent = "Enter the 6-digit code.";
+        return;
+      }
 
-    otpStatus.textContent = "Verifying code...";
+      if (otpStatus) otpStatus.textContent = "Verifying code...";
 
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      email: lastEmail,
-      token: otp,
-      type: "email",
+      try {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          email: lastEmail,
+          token: otp,
+          type: "email",
+        });
+
+        if (verifyError) {
+          if (otpStatus) otpStatus.textContent = verifyError.message;
+          return;
+        }
+
+        const { data, error: signError } = await supabase
+          .storage
+          .from(RESUME_BUCKET)
+          .createSignedUrl(RESUME_PATH, SIGNED_URL_TTL_SECONDS);
+
+        if (signError || !data?.signedUrl) {
+          if (otpStatus) otpStatus.textContent = "Could not open resume.";
+          return;
+        }
+
+        window.open(data.signedUrl, "_blank", "noopener");
+
+        await supabase.auth.signOut();
+        closeModal();
+
+      } catch (err) {
+        if (otpStatus) otpStatus.textContent = "Verification failed.";
+        console.error(err);
+      }
     });
-
-    if (verifyError) {
-      otpStatus.textContent = verifyError.message;
-      return;
-    }
-
-    const { data, error: signError } = await supabase
-      .storage
-      .from(RESUME_BUCKET)
-      .createSignedUrl(RESUME_PATH, SIGNED_URL_TTL_SECONDS);
-
-    if (signError || !data?.signedUrl) {
-      otpStatus.textContent = signError?.message || "Could not open resume.";
-      return;
-    }
-
-    window.open(data.signedUrl, "_blank", "noopener");
-
-    await supabase.auth.signOut();
-    closeModal();
-  });
+  }
 
 
   // =============================
-  // ===== Year ==================
-  // =============================
-
-  document.getElementById("year").textContent =
-    new Date().getFullYear();
-
-
-  // =============================
-  // ===== Auto Theme ============
+  // ===== Theme =================
   // =============================
 
   function setThemeByPST() {
@@ -157,9 +189,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
     document.body.classList.toggle("dark", !isLight);
 
-    const pill = document.getElementById("themePill");
-    if (pill) {
-      pill.textContent = isLight ? "PST Light Mode" : "PST Dark Mode";
+    if (themePill) {
+      themePill.textContent = isLight
+        ? "PST Light Mode"
+        : "PST Dark Mode";
     }
   }
 
@@ -171,56 +204,21 @@ window.addEventListener("DOMContentLoaded", () => {
   // ===== Sidebar ===============
   // =============================
 
-  const sidebarToggle = document.getElementById("sidebarToggle");
-  const sidebarNav = document.getElementById("sidebarNav");
-
-  sidebarToggle?.addEventListener("click", () => {
-    const open = sidebarNav.classList.toggle("is-open");
-    sidebarToggle.setAttribute("aria-expanded", String(open));
-  });
-
-  document.querySelectorAll(".nav-link").forEach((link) => {
-    link.addEventListener("click", () => {
-      if (sidebarNav.classList.contains("is-open")) {
-        sidebarNav.classList.remove("is-open");
-        sidebarToggle?.setAttribute("aria-expanded", "false");
-      }
+  if (sidebarToggle && sidebarNav) {
+    sidebarToggle.addEventListener("click", () => {
+      const open = sidebarNav.classList.toggle("is-open");
+      sidebarToggle.setAttribute("aria-expanded", String(open));
     });
-  });
 
-
-  // =============================
-  // ===== Scroll Highlight ======
-  // =============================
-
-  const navLinks = Array.from(
-    document.querySelectorAll(".nav-link")
-  ).filter(el => el.tagName.toLowerCase() === "a");
-
-  const sections = navLinks
-    .map(a => a.getAttribute("href"))
-    .filter(href => href?.startsWith("#"))
-    .map(id => document.getElementById(id.slice(1)))
-    .filter(Boolean);
-
-  function setActiveLink(id) {
-    navLinks.forEach(a =>
-      a.classList.toggle("active", a.getAttribute("href") === `#${id}`)
-    );
+    document.querySelectorAll(".nav-link").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (sidebarNav.classList.contains("is-open")) {
+          sidebarNav.classList.remove("is-open");
+          sidebarToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
   }
-
-  window.addEventListener("scroll", () => {
-    const offset = 160;
-    let current = sections[0]?.id || "";
-
-    for (const sec of sections) {
-      if (sec.getBoundingClientRect().top - offset <= 0) {
-        current = sec.id;
-      }
-    }
-
-    if (current) setActiveLink(current);
-  });
 
 
   // =============================
@@ -229,18 +227,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const revealEls = document.querySelectorAll(".reveal");
 
-  const io = new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          io.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.12 }
-  );
+  if (revealEls.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
 
-  revealEls.forEach(el => io.observe(el));
+    revealEls.forEach((el) => io.observe(el));
+  }
 
 });
