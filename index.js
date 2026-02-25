@@ -412,21 +412,31 @@ resumeBtnTrack?.addEventListener("click", () => {
   metricResume.textContent = resumeClicks;
 });
 
-// ----- Session Timer -----
+// ----- Session Timer (HH:MM:SS format) -----
+
 let seconds = 0;
+
+function formatTime(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const secs = totalSeconds % 60;
+
+  const paddedHours = hours.toString().padStart(2, "0");
+  const paddedMinutes = minutes.toString().padStart(2, "0");
+  const paddedSeconds = secs.toString().padStart(2, "0");
+
+  if (hours > 0) {
+    return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+  } else {
+    return `${paddedMinutes}:${paddedSeconds}`;
+  }
+}
 
 setInterval(() => {
   seconds++;
-  metricSession.textContent = seconds + "s";
+  if (metricSession) {
+    metricSession.textContent = formatTime(seconds);
+  }
 }, 1000);
-
-const metricCard = document.querySelector(".metric");
-
-metricCard?.addEventListener("mouseenter", () => {
-  resumeBtn.classList.add("highlight-resume");
-  setTimeout(() => {
-    resumeBtn.classList.remove("highlight-resume");
-  }, 1200);
-});
 
 });
