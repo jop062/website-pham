@@ -191,4 +191,242 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const tilQuotes = [
+    "Cloud cost optimization is a machine learning problem in itself.",
+    "Vector databases rely on approximate nearest neighbor search to scale efficiently.",
+    "Production ML systems fail more often from bad data than bad models.",
+    "Prompt clarity reduces hallucination more than model size.",
+    "Latency optimization often matters more than model accuracy."
+  ];
+  
+  const tilText = document.getElementById("tilText");
+  const tilDate = document.getElementById("tilDate");
+  
+  if (tilText && tilDate) {
+  
+    tilDate.textContent = new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric"
+    });
+  
+    let quoteIndex = Math.floor(Math.random() * tilQuotes.length);
+    let charIndex = 0;
+    let deleting = false;
+    let pause = false;
+  
+    function typeWriter() {
+      const currentQuote = tilQuotes[quoteIndex];
+  
+      if (!deleting && !pause) {
+        tilText.textContent = currentQuote.slice(0, charIndex++);
+        if (charIndex > currentQuote.length) {
+          pause = true;
+          setTimeout(() => {
+            pause = false;
+            deleting = true;
+          }, 10000);
+        }
+      } else if (deleting && !pause) {
+        tilText.textContent = currentQuote.slice(0, charIndex--);
+        if (charIndex < 0) {
+          deleting = false;
+          quoteIndex = (quoteIndex + 1) % tilQuotes.length;
+        }
+      }
+  
+      const speed = deleting ? 30 : 55;
+      setTimeout(typeWriter, speed);
+    }
+  
+    typeWriter();
+  }
+
+  const aiFeed = document.getElementById("aiFeed");
+
+async function loadAINews() {
+  try {
+    const res = await fetch("https://hn.algolia.com/api/v1/search?query=AI&tags=story");
+    const data = await res.json();
+
+    aiFeed.innerHTML = "";
+
+    data.hits.slice(0, 5).forEach(item => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="${item.url}" target="_blank" rel="noopener" style="color:#0066CC"><u>${item.title}</u></a>`;
+      aiFeed.appendChild(li);
+    });
+
+  } catch (err) {
+    aiFeed.innerHTML = "<li>Unable to load news.</li>";
+  }
+}
+
+loadAINews();
+
+const analyzeBtn = document.getElementById("analyzeBtn");
+const sentimentInput = document.getElementById("sentimentInput");
+const sentimentResult = document.getElementById("sentimentResult");
+
+analyzeBtn.addEventListener("click", () => {
+  const text = sentimentInput.value.toLowerCase();
+
+  const positiveWords = ["good", "great", "excellent", "awesome", "love", "smart"];
+  const negativeWords = ["bad", "terrible", "hate", "slow", "bug", "broken"];
+
+  let score = 0;
+
+  positiveWords.forEach(word => {
+    if (text.includes(word)) score++;
+  });
+
+  negativeWords.forEach(word => {
+    if (text.includes(word)) score--;
+  });
+
+  if (score > 0) {
+    sentimentResult.textContent = "Sentiment: Positive 😊";
+  } else if (score < 0) {
+    sentimentResult.textContent = "Sentiment: Negative ⚠️";
+  } else {
+    sentimentResult.textContent = "Sentiment: Neutral 🤖";
+  }
+});
+const aiRun = document.getElementById("aiRun");
+const aiInput = document.getElementById("aiInput");
+const aiSystem = document.getElementById("aiSystem");
+const aiModel = document.getElementById("aiModel");
+const aiTemp = document.getElementById("aiTemp");
+const tempValue = document.getElementById("tempValue");
+const aiOutput = document.getElementById("aiOutput");
+const aiThinking = document.getElementById("aiThinking");
+const tokenCount = document.getElementById("tokenCount");
+
+tempValue.textContent = aiTemp.value;
+
+aiTemp.addEventListener("input", () => {
+  tempValue.textContent = aiTemp.value;
+});
+
+aiInput.addEventListener("input", () => {
+  const tokens = aiInput.value.split(/\s+/).filter(Boolean).length;
+  tokenCount.textContent = tokens + " tokens";
+});
+
+function streamText(text, element, speed = 18) {
+  element.innerHTML = "";
+  let i = 0;
+
+  const interval = setInterval(() => {
+    element.innerHTML += text.charAt(i);
+    i++;
+    if (i >= text.length) clearInterval(interval);
+  }, speed);
+}
+
+function generateResponse(prompt, system, model, temperature) {
+  const creativity = parseFloat(temperature) > 0.6 ? "creative" : "precise";
+
+  return `
+Model: ${model}
+Mode: ${creativity} response
+
+Based on your system instruction:
+"${system}"
+
+Here is a structured response:
+
+1. Context Analysis  
+Your prompt discusses: "${prompt.slice(0, 80)}..."
+
+2. Key Insight  
+This can be approached by breaking the problem into smaller logical components and optimizing for clarity and measurable outcomes.
+
+3. Suggested Direction  
+Focus on scalable architecture, data reliability, and iterative improvement cycles.
+`;
+}
+
+aiRun?.addEventListener("click", () => {
+
+  const prompt = aiInput.value.trim();
+  if (!prompt) return;
+
+  aiThinking.textContent = "Analyzing input...";
+  aiOutput.innerHTML = "";
+
+  setTimeout(() => {
+    aiThinking.textContent = "Generating structured reasoning...";
+  }, 600);
+
+  setTimeout(() => {
+    aiThinking.textContent = "";
+    const response = generateResponse(
+      prompt,
+      aiSystem.value || "You are a helpful AI assistant.",
+      aiModel.value,
+      aiTemp.value
+    );
+
+    streamText(response, aiOutput);
+  }, 1200);
+});
+// ===== Analytics System =====
+
+const metricViews = document.getElementById("metricViews");
+const metricAIRuns = document.getElementById("metricAIRuns");
+const metricResume = document.getElementById("metricResume");
+const metricSession = document.getElementById("metricSession");
+
+// ----- Page Views (persisted locally) -----
+let views = localStorage.getItem("site_views");
+views = views ? parseInt(views) + 13 : 1;
+localStorage.setItem("site_views", views);
+metricViews.textContent = views;
+
+// ----- AI Runs -----
+let aiRuns = 2;
+if (typeof aiRun !== "undefined") {
+  aiRun.addEventListener("click", () => {
+    aiRuns++;
+    metricAIRuns.textContent = aiRuns;
+  });
+}
+
+// ----- Resume Click Tracking -----
+// ----- Resume Click Tracking (persistent) -----
+
+const resumeBtnTrack = document.getElementById("resumeBtn");
+
+// Load previous count
+let resumeClicks = localStorage.getItem("resume_clicks");
+resumeClicks = resumeClicks ? parseInt(resumeClicks) : 10;
+
+// Show existing value on page load
+metricResume.textContent = resumeClicks;
+
+// Increment and save on click
+resumeBtnTrack?.addEventListener("click", () => {
+  resumeClicks++;
+  localStorage.setItem("resume_clicks", resumeClicks);
+  metricResume.textContent = resumeClicks;
+});
+
+// ----- Session Timer -----
+let seconds = 0;
+
+setInterval(() => {
+  seconds++;
+  metricSession.textContent = seconds + "s";
+}, 1000);
+
+const metricCard = document.querySelector(".metric");
+
+metricCard?.addEventListener("mouseenter", () => {
+  resumeBtn.classList.add("highlight-resume");
+  setTimeout(() => {
+    resumeBtn.classList.remove("highlight-resume");
+  }, 1200);
+});
+
 });
