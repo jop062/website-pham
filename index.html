@@ -24,9 +24,14 @@
         </div>
 
         <nav class="sidebar__nav" id="sidebarNav">
-          <a class="nav-link" href="#work">Work</a>
+          <a class="nav-link" href="#about">About</a>
+          <a class="nav-link" href="#work">Experience</a>
           <a class="nav-link" href="#projects">Projects</a>
           <a class="nav-link" href="#skills">Skills</a>
+          <a class="nav-link" href="#leadership">Leadership</a>
+          <a class="nav-link" href="#cool">Cool Stuff</a>
+          <a class="nav-link" href="#ai-demo">AI Demo</a>
+          <a class="nav-link" href="#analytics">Analytics</a>
           <a class="nav-link" href="#contact">Contact</a>
           <button class="nav-link nav-link--btn" id="resumeBtn" type="button">Resume</button>
 
@@ -82,11 +87,46 @@
           </div>
         </header>
 
+
+        <!-- ABOUT -->
+        <section class="section reveal" id="about">
+          <div class="section__head">
+            <h2><span class="accent">About Me</span></h2>
+            <p class="muted">A bit about my background and approach.</p>
+          </div>
+
+          <div class="card glass about-card">
+            <p>
+              I'm a data-focused problem solver building at the intersection of AI, machine learning, and cloud systems. I study Data Analytics at UC San Diego, where I focus on turning complex data into reliable, production-ready solutions.
+            </p>
+          
+            <p>
+              I design and deploy machine learning systems that move beyond experimentation into practical use. My work centers on building scalable pipelines, training models responsibly, and ensuring systems are measurable, efficient, and maintainable.
+            </p>
+          
+            <p>
+              My mission is to translate data into systems that create real-world impact, not just theoretical results.
+            </p>
+          
+            <p>
+              I believe strong engineering means clarity over complexity, systems over scripts, and measurable performance over hype.
+            </p>
+          
+            <p>
+              Long term, I aim to build and lead intelligent systems that operate at scale—where machine learning, infrastructure, and responsible AI converge.
+            </p>
+          
+            <p>
+              Outside of technology, I stay active through tennis, fishing, and strategy-driven games like Tetris. Disciplines that reinforce focus, iteration, and competitive thinking.
+            </p>
+          </div>
+        </section>
+
         <!-- WORK -->
         <section class="section reveal" id="work">
           <div class="section__head">
             <h2><span class="accent">Experience</span></h2>
-            <p class="muted">What I’ve worked on recently.</p>
+            <p class="muted">What I've worked on recently.</p>
           </div>
 
           <div class="grid">
@@ -120,7 +160,7 @@
         <section class="section reveal" id="projects">
           <div class="section__head">
             <h2><span class="accent">Projects</span></h2>
-            <p class="muted">Things I’ve built.</p>
+            <p class="muted">Things I've built.</p>
           </div>
 
           <div class="grid grid--projects">
@@ -209,6 +249,160 @@
           </div>
         </section>
 
+
+        <!--Leadership-->
+        <section class="section reveal" id="leadership">
+          <div class="section__head">
+            <h2><span class="accent">Leadership</span></h2>
+            <p class="muted">Where I’ve led, built, and contributed beyond coursework.</p>
+          </div>
+        
+          <div class="grid">
+            <article class="card glass">
+              <div class="card__top">
+                <h3>AI Club Project Lead</h3>
+                <p class="muted">UC San Diego</p>
+              </div>
+              <ul class="list">
+                <li>Led a 6-person team building a retrieval-based AI assistant.</li>
+                <li>Defined project scope, technical architecture, and milestone timelines.</li>
+                <li>Presented results to faculty and industry mentors.</li>
+              </ul>
+            </article>
+        
+            <article class="card glass">
+              <div class="card__top">
+                <h3>Sports Analytics Member</h3>
+                <p class="muted">UCSD Analytics Group</p>
+              </div>
+              <ul class="list">
+                <li>Collaborated on data modeling projects using real-world datasets.</li>
+                <li>Contributed analysis for team-based forecasting competitions.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+        
+        <!-- COOL STUFF -->
+        <section class="section reveal" id="cool">
+          <div class="section__head">
+            <h2><span class="accent">Cool Stuff</span></h2>
+            <p class="muted">Experiments, live data, and small demos.</p>
+          </div>
+
+        <div class="grid grid--projects">
+
+         <!-- Today I Learned -->
+         <article class="card glass">
+          <h3>Today I Learned</h3>
+          <p class="muted tiny" id="tilDate"></p>
+          <p id="tilText" class="muted"></p>
+        </article>
+
+          <!-- AI News Feed -->
+        <article class="card glass">
+          <h3>AI Headlines</h3>
+          <ul id="aiFeed" class="list muted">
+            li>Loading AI news...</li>
+          </ul>
+        </article>
+
+        <!-- Mini Demo -->
+        <article class="card glass">
+          <h3>Mini Demo: Sentiment Checker</h3>
+          <p class="muted tiny">Simple rule-based NLP demo.</p>
+          <input id="sentimentInput" placeholder="Type something..." />
+          <button class="btn" id="analyzeBtn" style="margin-top:10px;">Analyze</button>
+          <p id="sentimentResult" style="margin-top:10px;"></p>
+        </article>
+
+          </div>
+        </section>  
+        <!--AiDemo-->
+        <section class="section reveal" id="ai-demo">
+          <div class="section__head">
+            <h2><span class="accent">AI Playground</span></h2>
+            <p class="muted">Prompt engineering simulation interface.</p>
+          </div>
+        
+          <div class="card glass ai-lab">
+        
+            <div class="ai-controls">
+        
+              <label>
+                System Prompt
+                <input id="aiSystem" placeholder="You are a helpful AI assistant." />
+              </label>
+        
+              <label>
+                Model
+                <select id="aiModel">
+                  <option value="gpt-4">GPT-4</option>
+                  <option value="gpt-4o">GPT-4o</option>
+                  <option value="claude">Claude 3</option>
+                </select>
+              </label>
+        
+              <label>
+                Temperature <span id="tempValue">0.7</span>
+                <input type="range" id="aiTemp" min="0" max="1" step="0.1" value="0.7" />
+              </label>
+        
+            </div>
+        
+            <label>
+              User Prompt
+              <textarea id="aiInput" rows="4" placeholder="Ask something interesting..."></textarea>
+            </label>
+        
+            <div class="ai-meta">
+              <span id="tokenCount">0 tokens</span>
+            </div>
+        
+            <button class="btn" id="aiRun">Run Model</button>
+        
+            <div class="ai-output glass">
+              <div class="ai-thinking muted tiny" id="aiThinking"></div>
+              <div id="aiOutput"></div>
+            </div>
+        
+          </div>
+        </section>
+        <!-- Analytics -->
+        <section class="section reveal" id="analytics">
+          <div class="section__head">
+            <h2><span class="accent">Site Analytics</span></h2>
+            <p class="muted">Live interaction metrics and session insights.</p>
+          </div>
+        
+          <div class="grid">
+        
+            <div class="card glass metric">
+              <div class="metric__label">Page Views</div>
+              <div class="metric__value" id="metricViews">13</div>
+            </div>
+        
+            <div class="card glass metric">
+              <div class="metric__label">AI Runs</div>
+              <div class="metric__value" id="metricAIRuns">0</div>
+            </div>
+        
+            <div class="card glass metric">
+              <div class="metric__label">Resume Clicks</div>
+              <div class="metric__hint">
+                ← Click “Resume” in the sidebar
+              </div>
+              <div class="metric__value" id="metricResume">10</div>
+            </div>
+        
+            <div class="card glass metric">
+              <div class="metric__label">Session Time</div>
+              <div class="metric__label">The time you spent on my website. Thank You!!!</div>
+              <div class="metric__value" id="metricSession">0s</div>
+            </div>
+        
+          </div>
+        </section>
         <!-- CONTACT -->
         <section class="section reveal" id="contact">
           <div class="section__head">
