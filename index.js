@@ -439,4 +439,89 @@ setInterval(() => {
   }
 }, 1000);
 
+// ===== Slideshow =====
+
+const slides = [
+  {
+    img: "images/tritonBall.jpeg",
+    caption: "UCSD Triton Ball Sports Analytics Club – Attended and build models and data for UCSD Sports team."
+  },
+  {
+    img: "images/CCCAAWomen-568.jpg",
+    caption: "Playing tennis"
+  },
+  {
+    img: "images/IMG_4723.jpg",
+    caption: "Gone Fishing in Minnesota"
+  }
+];
+
+const slideImage = document.getElementById("slideImage");
+const slideCaption = document.getElementById("slideCaption");
+const prevSlide = document.getElementById("prevSlide");
+const nextSlide = document.getElementById("nextSlide");
+const slideDots = document.getElementById("slideDots");
+
+let currentSlide = 0;
+let slideInterval;
+
+// Create dots
+slides.forEach((_, index) => {
+  const dot = document.createElement("span");
+  dot.addEventListener("click", () => goToSlide(index));
+  slideDots.appendChild(dot);
+});
+
+function updateSlide() {
+  slideImage.style.opacity = 0;
+
+  setTimeout(() => {
+    slideImage.src = slides[currentSlide].img;
+    slideCaption.textContent = slides[currentSlide].caption;
+    slideImage.style.opacity = 1;
+
+    Array.from(slideDots.children).forEach((dot, i) => {
+      dot.classList.toggle("active", i === currentSlide);
+    });
+  }, 200);
+}
+
+function next() {
+  currentSlide = (currentSlide + 1) % slides.length;
+  updateSlide();
+}
+
+function prev() {
+  currentSlide =
+    (currentSlide - 1 + slides.length) % slides.length;
+  updateSlide();
+}
+
+function goToSlide(index) {
+  currentSlide = index;
+  updateSlide();
+}
+
+function startAutoSlide() {
+  slideInterval = setInterval(next, 5000);
+}
+
+function resetAutoSlide() {
+  clearInterval(slideInterval);
+  startAutoSlide();
+}
+
+nextSlide?.addEventListener("click", () => {
+  next();
+  resetAutoSlide();
+});
+
+prevSlide?.addEventListener("click", () => {
+  prev();
+  resetAutoSlide();
+});
+
+updateSlide();
+startAutoSlide();
+
 });
