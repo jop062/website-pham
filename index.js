@@ -292,85 +292,7 @@ analyzeBtn.addEventListener("click", () => {
     sentimentResult.textContent = "Sentiment: Neutral 🤖";
   }
 });
-const aiRun = document.getElementById("aiRun");
-const aiInput = document.getElementById("aiInput");
-const aiSystem = document.getElementById("aiSystem");
-const aiModel = document.getElementById("aiModel");
-const aiTemp = document.getElementById("aiTemp");
-const tempValue = document.getElementById("tempValue");
-const aiOutput = document.getElementById("aiOutput");
-const aiThinking = document.getElementById("aiThinking");
-const tokenCount = document.getElementById("tokenCount");
 
-tempValue.textContent = aiTemp.value;
-
-aiTemp.addEventListener("input", () => {
-  tempValue.textContent = aiTemp.value;
-});
-
-aiInput.addEventListener("input", () => {
-  const tokens = aiInput.value.split(/\s+/).filter(Boolean).length;
-  tokenCount.textContent = tokens + " tokens";
-});
-
-function streamText(text, element, speed = 18) {
-  element.innerHTML = "";
-  let i = 0;
-
-  const interval = setInterval(() => {
-    element.innerHTML += text.charAt(i);
-    i++;
-    if (i >= text.length) clearInterval(interval);
-  }, speed);
-}
-
-function generateResponse(prompt, system, model, temperature) {
-  const creativity = parseFloat(temperature) > 0.6 ? "creative" : "precise";
-
-  return `
-Model: ${model}
-Mode: ${creativity} response
-
-Based on your system instruction:
-"${system}"
-
-Here is a structured response:
-
-1. Context Analysis  
-Your prompt discusses: "${prompt.slice(0, 80)}..."
-
-2. Key Insight  
-This can be approached by breaking the problem into smaller logical components and optimizing for clarity and measurable outcomes.
-
-3. Suggested Direction  
-Focus on scalable architecture, data reliability, and iterative improvement cycles.
-`;
-}
-
-aiRun?.addEventListener("click", () => {
-
-  const prompt = aiInput.value.trim();
-  if (!prompt) return;
-
-  aiThinking.textContent = "Analyzing input...";
-  aiOutput.innerHTML = "";
-
-  setTimeout(() => {
-    aiThinking.textContent = "Generating structured reasoning...";
-  }, 600);
-
-  setTimeout(() => {
-    aiThinking.textContent = "";
-    const response = generateResponse(
-      prompt,
-      aiSystem.value || "You are a helpful AI assistant.",
-      aiModel.value,
-      aiTemp.value
-    );
-
-    streamText(response, aiOutput);
-  }, 1200);
-});
 // ===== Analytics System =====
 
 const metricViews = document.getElementById("metricViews");
@@ -384,14 +306,7 @@ views = views ? parseInt(views) + 13 : 1;
 localStorage.setItem("site_views", views);
 metricViews.textContent = views;
 
-// ----- AI Runs -----
-let aiRuns = 2;
-if (typeof aiRun !== "undefined") {
-  aiRun.addEventListener("click", () => {
-    aiRuns++;
-    metricAIRuns.textContent = aiRuns;
-  });
-}
+
 
 // ----- Resume Click Tracking -----
 // ----- Resume Click Tracking (persistent) -----
@@ -439,59 +354,63 @@ setInterval(() => {
   }
 }, 1000);
 
-// ===== Slideshow =====
+// =======================
+// ===== Slideshow =======
+// =======================
 
 const slides = [
   {
-    img: "images/tritonBall.jpeg",
-    caption: "UCSD Triton Ball Sports Analytics Club – Attended and built models and data for the UCSD Sports team."
+    src: "images/tritonBall.jpeg",
+    caption: "UCSD Triton Ball Sports Analytics Club – Built models and analytics for UCSD sports teams."
   },
   {
-    img: "images/CCCAAWomen-568 (1).jpg",
-    caption: "Playing tennis in the Ojai Tennis Tournament 2024."
+    src: "images/CCCAAWomen-568.jpg",
+    caption: "Playing tennis"
   },
   {
-    img: "images/IMG_4723.jpg",
-    caption: "Gone Fishing in Minnesota."
+    src: "images/IMG_4723.jpg",
+    caption: "Fishing in Minnesota"
   }
 ];
 
 const slideImage = document.getElementById("slideImage");
 const slideCaption = document.getElementById("slideCaption");
-const prevSlide = document.getElementById("prevSlide");
-const nextSlide = document.getElementById("nextSlide");
 const slideDots = document.getElementById("slideDots");
 
 let currentSlide = 0;
 let slideInterval;
 
-// Create dots
-slides.forEach((_, index) => {
-  const dot = document.createElement("span");
-  dot.addEventListener("click", () => goToSlide(index));
-  slideDots.appendChild(dot);
-});
+// Create dots dynamically
+function renderDots() {
+  slideDots.innerHTML = "";
+  slides.forEach((_, index) => {
+    const dot = document.createElement("span");
+    if (index === currentSlide) dot.classList.add("active");
+    dot.addEventListener("click", () => {
+      goToSlide(index);
+      resetAutoSlide();
+    });
+    slideDots.appendChild(dot);
+  });
+}
 
 function updateSlide() {
   slideImage.style.opacity = 0;
 
   setTimeout(() => {
-    slideImage.src = slides[currentSlide].img;
+    slideImage.src = slides[currentSlide].src;
     slideCaption.textContent = slides[currentSlide].caption;
     slideImage.style.opacity = 1;
-
-    Array.from(slideDots.children).forEach((dot, i) => {
-      dot.classList.toggle("active", i === currentSlide);
-    });
+    renderDots();
   }, 200);
 }
 
-function next() {
+function nextSlide() {
   currentSlide = (currentSlide + 1) % slides.length;
   updateSlide();
 }
 
-function prev() {
+function prevSlide() {
   currentSlide =
     (currentSlide - 1 + slides.length) % slides.length;
   updateSlide();
@@ -503,7 +422,7 @@ function goToSlide(index) {
 }
 
 function startAutoSlide() {
-  slideInterval = setInterval(next, 5000);
+  slideInterval = setInterval(nextSlide, 5000);
 }
 
 function resetAutoSlide() {
@@ -511,17 +430,199 @@ function resetAutoSlide() {
   startAutoSlide();
 }
 
-nextSlide?.addEventListener("click", () => {
-  next();
+// Hook up buttons
+document.getElementById("nextSlide")?.addEventListener("click", () => {
+  nextSlide();
   resetAutoSlide();
 });
 
-prevSlide?.addEventListener("click", () => {
-  prev();
+document.getElementById("prevSlide")?.addEventListener("click", () => {
+  prevSlide();
   resetAutoSlide();
 });
 
+// Initialize
 updateSlide();
+
 startAutoSlide();
 
+// =============================
+// ===== Sidebar Collapse =======
+// =============================
+const sidebarCollapse = document.getElementById("sidebarCollapse");
+const sidebar = document.querySelector(".sidebar");
+
+if (sidebarCollapse && sidebar) {
+  // Restore saved state
+  if (localStorage.getItem("sidebar_collapsed") === "true") {
+    sidebar.classList.add("collapsed");
+  }
+
+  sidebarCollapse.addEventListener("click", () => {
+    const isCollapsed = sidebar.classList.toggle("collapsed");
+    localStorage.setItem("sidebar_collapsed", isCollapsed);
+
+    // Update content margin directly since CSS sibling selector 
+    // won't reach across the layout
+    const content = document.querySelector(".content");
+    if (content) {
+      content.style.marginLeft = isCollapsed ? "82px" : "calc(240px + 18px)";
+    }
+  });
+}
+// =============================
+// ===== Floating AI Chat =======
+// =============================
+const chatFab = document.getElementById("chatFab");
+const chatPanel = document.getElementById("chatPanel");
+const chatClose = document.getElementById("chatClose");
+const chatInput = document.getElementById("chatInput");
+const chatSend = document.getElementById("chatSend");
+const chatMessages = document.getElementById("chatMessages");
+
+const JONATHAN_CONTEXT = `
+You are a friendly AI assistant embedded on Jonathan Pham's personal portfolio website.
+You answer questions about Jonathan in a warm, professional, and natural tone — always in full sentences.
+Never say "I don't know" — use only the facts below. If something isn't covered, say Jonathan hasn't shared that detail yet.
+
+FACTS ABOUT JONATHAN PHAM:
+- Full name: Jonathan Pham
+- Currently a student at the University of California, San Diego (UCSD), located in La Jolla, California
+- Major: Data Analytics
+- Seeking internships for Summer 2026
+- Email: jop062@ucsd.edu
+- Phone: (858) 280-1309
+- LinkedIn: linkedin.com/in/jonathan-pham-9ab3942a6
+- GitHub: github.com/jop062
+
+EXPERIENCE:
+- Data Insight Intern at THORPETO INC. (Summer 2025): analyzed operational data, built reporting workflows, delivered insights for process and marketing improvements
+- UC San Diego student projects: ML and analytics using Python, Pandas, scikit-learn; SQL reporting and data cleaning; team-based work
+
+PROJECTS:
+- LLM Assistant Prototype: Built a Retrieval-Augmented Generation (RAG) assistant using Python, Embeddings, FAISS. Indexes custom documents, retrieves context via vector search, generates grounded responses. Includes latency tracking and retrieval evaluation. GitHub: github.com/jop062/llm-rag-assistant
+- Analytics Dashboard: Interactive dashboard tracking revenue, customer growth, and churn using SQL and Pandas. Automated KPI calculations for a simulated SaaS business. GitHub: github.com/jop062/analytics-kpi-dashboard
+- Automation Scripts: Python and Bash scripts that standardize workflows and reduce manual steps
+
+SKILLS:
+Python, SQL, Java, C++, Pandas, scikit-learn, Git, Linux, APIs, Data Visualization, Stata, R, React, Embeddings, FAISS, RAG, Bash
+
+LEADERSHIP:
+- AI Club Project Lead at UCSD: led a 6-person team building a retrieval-based AI assistant, defined architecture and milestones, presented to faculty and industry mentors
+- Sports Analytics Member at UCSD Analytics Group: data modeling projects, forecasting competitions
+
+PERSONAL INTERESTS:
+- Tennis, fishing, strategy games like Tetris
+- Passionate about building scalable, production-ready ML systems
+- Philosophy: clarity over complexity, systems over scripts, measurable performance over hype
+
+Only answer questions about Jonathan. If asked about anything unrelated, politely redirect the conversation back to Jonathan.
+`;
+
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.className = `chat-msg chat-msg--${type}`;
+  div.innerHTML = `<span>${text}</span>`;
+  chatMessages.appendChild(div);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return div;
+}
+
+async function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+
+  chatInput.value = "";
+  addMessage(text, "user");
+
+  const typingEl = addMessage("Thinking...", "typing");
+
+  // Simulate a short delay for realism
+  await new Promise(r => setTimeout(r, 800));
+
+  const reply = getSmartReply(text);
+  typingEl.remove();
+  addMessage(reply, "ai");
+}
+
+function getSmartReply(question) {
+  const q = question.toLowerCase();
+
+  // College / Education
+  if (q.match(/college|university|school|ucsd|study|studying|major|degree|education/)) {
+    return "Jonathan currently attends the University of California, San Diego (UCSD), located in La Jolla, California. He is studying Data Analytics and is expected to graduate in 2027.";
+  }
+
+  // Location
+  if (q.match(/where.*live|where.*from|location|city|san diego|la jolla/)) {
+    return "Jonathan is based in San Diego, California — home to UCSD where he currently studies Data Analytics.";
+  }
+
+  // Internship / Job
+  if (q.match(/intern|job|hire|hiring|available|open to|work|employ|opportunit/)) {
+    return "Jonathan is actively seeking internships for Summer 2026! He's open to roles in data analytics, machine learning, software engineering, and AI. You can reach him at jop062@ucsd.edu or through the Contact section.";
+  }
+
+  // Experience
+  if (q.match(/experience|work history|worked|thorpeto|past job/)) {
+    return "Jonathan interned at THORPETO INC. during Summer 2025 as a Data Insight Intern, where he analyzed operational data, built reporting workflows, and delivered actionable insights for marketing and process improvements.";
+  }
+
+  // Projects
+  if (q.match(/project|built|build|rag|llm|dashboard|automation|portfolio/)) {
+    return "Jonathan has built several impressive projects! His standout work includes an LLM RAG Assistant (using Python, FAISS, and embeddings), an Analytics KPI Dashboard (SQL + Pandas), and various automation scripts. You can find them on his GitHub at github.com/jop062.";
+  }
+
+  // Skills
+  if (q.match(/skill|know|language|tech|stack|python|sql|tools|code|coding|program/)) {
+    return "Jonathan is skilled in Python, SQL, Java, C++, Pandas, scikit-learn, Git, Linux, R, React, FAISS, RAG, Embeddings, Bash, Stata, and data visualization. He's particularly strong in data analytics and machine learning workflows.";
+  }
+
+  // Leadership
+  if (q.match(/lead|leadership|club|team|ai club|sports analytics/)) {
+    return "Jonathan served as AI Club Project Lead at UCSD, where he led a 6-person team building a retrieval-based AI assistant. He also participated in the UCSD Sports Analytics Group, contributing to data modeling and forecasting competitions.";
+  }
+
+  // Contact
+  if (q.match(/contact|email|phone|reach|linkedin|github|social/)) {
+    return "You can reach Jonathan at jop062@ucsd.edu or by phone at (858) 280-1309. He's also on LinkedIn at linkedin.com/in/jonathan-pham-9ab3942a6 and GitHub at github.com/jop062.";
+  }
+
+  // Hobbies / Personal
+  if (q.match(/hobby|hobbies|interest|fun|outside|personal|tennis|fish|tetris|sport/)) {
+    return "Outside of tech, Jonathan enjoys playing tennis, fishing, and playing strategy games like Tetris. He sees these as disciplines that reinforce focus, iteration, and competitive thinking — qualities he also brings to his engineering work.";
+  }
+
+  // Name / Who
+  if (q.match(/who|name|jonathan|tell me about/)) {
+    return "Jonathan Pham is a Data Analytics student at UC San Diego with a passion for building practical AI and data-driven systems. He's interned at THORPETO INC., led AI projects on campus, and is actively seeking Summer 2026 internships.";
+  }
+
+  // Resume
+  if (q.match(/resume|cv|download/)) {
+    return "You can request Jonathan's resume by clicking the Resume button in the sidebar! It'll ask for your email so Jonathan knows who's viewing it.";
+  }
+
+  // Fallback
+  return "That's a great question! Jonathan hasn't shared that specific detail yet. Feel free to reach out to him directly at jop062@ucsd.edu — he'd love to connect!";
+}
+// Toggle chat open/close
+chatFab?.addEventListener("click", () => {
+  const isOpen = chatPanel.classList.toggle("is-open");
+  chatPanel.setAttribute("aria-hidden", String(!isOpen));
+  if (isOpen) chatInput.focus();
+});
+
+chatClose?.addEventListener("click", () => {
+  chatPanel.classList.remove("is-open");
+  chatPanel.setAttribute("aria-hidden", "true");
+});
+
+// Send on button click or Enter
+chatSend?.addEventListener("click", sendMessage);
+chatInput?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+
+//}); // closes DOMContentLoaded
 });
