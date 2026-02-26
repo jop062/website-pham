@@ -443,15 +443,15 @@ setInterval(() => {
 
 const slides = [
   {
-    img: "tritonBall.jpeg",
+    img: "images/tritonBall.jpeg",
     caption: "UCSD Triton Ball Sports Analytics Club – Attended and built models and data for the UCSD Sports team."
   },
   {
-    img: "CCCAAWomen-568 (1).jpg",
+    img: "images/CCCAAWomen-568 (1).jpg",
     caption: "Playing tennis in the Ojai Tennis Tournament 2024."
   },
   {
-    img: "IMG_4723.jpg",
+    img: "images/IMG_4723.jpg",
     caption: "Gone Fishing in Minnesota."
   }
 ];
